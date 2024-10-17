@@ -1,5 +1,4 @@
 // Define Node class to represent AST nodes
-
 class Node {
     constructor(type, value = null, left = null, right = null) {
       this.type = type;  // 'operator' or 'operand'
@@ -21,19 +20,39 @@ class Node {
   
     // Helper functions
     function nextToken() {
-      return tokens[index++];
+      if (index < tokens.length) {
+        if (tokens[index].startsWith("'") ||  tokens[index].startsWith('"') ) {
+            return tokens[index++];
+        }
+
+        return tokens[index++].toLowerCase();  // Return the token as is (without lowercase here)
+      }
+      return null;  // Return null if there are no more tokens
     }
   
     function peekToken() {
-      return tokens[index];
+      if (index < tokens.length) {
+        if (tokens[index].startsWith("'") ||  tokens[index].startsWith('"') ) {
+            return tokens[index];
+        }
+
+        return tokens[index].toLowerCase();
+      }
+      return null;  // Return null if there are no more tokens
     }
   
     // Parse an operand (e.g., 'age >= 10')
     function parseOperand() {
-      const left = nextToken();  // e.g., 'age'
-      const operator = nextToken();  // e.g., '>=', '>'
-      const right = nextToken();  // e.g., '10' or 'Sales'
-      return new Node('operand', `${left} ${operator} ${right}`);
+      const left = nextToken();  // Field should be case-insensitive
+      const operator = nextToken();  // Operator should be case-insensitive
+      const right = nextToken();  // Keep the value case-sensitive (e.g., 'Sales')
+      
+      // Handle quoted strings properly for values
+      if ((right.startsWith("'") && right.endsWith("'")) || (right.startsWith('"') && right.endsWith('"'))) {
+        return new Node('operand', `${left} ${operator} ${right}`);  // Preserve quotes in the value
+      } else {
+        return new Node('operand', `${left} ${operator} ${right}`);
+      }
     }
   
     // Parse parentheses and sub-expressions
@@ -51,7 +70,7 @@ class Node {
     function parseAndExpression() {
       let node = parsePrimary();  // Parse the primary expression (operand or parentheses)
   
-      while (peekToken() === 'AND') {
+      while (peekToken() && peekToken()=== 'and') {  // Case-insensitive AND
         const operator = nextToken();  // AND
         const rightNode = parsePrimary();  // Parse the right-hand side for AND
         node = new Node('operator', operator, node, rightNode);
@@ -64,7 +83,7 @@ class Node {
     function parseLogicalExpression() {
       let node = parseAndExpression(); // Parse AND first, as it has higher precedence
   
-      while (peekToken() === 'OR') {
+      while (peekToken() && peekToken() === 'or') {  // Case-insensitive OR
         const operator = nextToken();  // OR
         const rightNode = parseAndExpression();  // Parse the right-hand side for OR
         node = new Node('operator', operator, node, rightNode);
@@ -74,6 +93,15 @@ class Node {
     }
   
     return parseLogicalExpression();
+  }
+
+  // Function to convert keys in userData to lowercase for case-insensitive matching
+function convertKeysToLowercase(obj) {
+    const newObj = {};
+    for (const key of Object.keys(obj)) {
+      newObj[key.toLowerCase()] = obj[key];
+    }
+    return newObj;
   }
   
   // Function to evaluate the AST against user data
@@ -89,7 +117,9 @@ class Node {
         value = value.slice(1, -1);  // Remove double quotes
       }
   
-      const dataValue = data[field];
+      // Convert the field to lowercase to handle case-insensitivity for field names
+      const dataValue = data[field.toLowerCase()];  // Case-insensitive field access
+    //   console.log(field, operator, value, dataValue);
   
       // Handle different operators for comparison
       switch (operator) {
@@ -105,26 +135,31 @@ class Node {
       const leftResult = evaluateAST(node.left, data);
       const rightResult = evaluateAST(node.right, data);
   
-      if (node.value === 'AND') {
+      if (node.value === 'and') {  // Case-insensitive AND
         return leftResult && rightResult;
-      } else if (node.value === 'OR') {
+      } else if (node.value === 'or') {  // Case-insensitive OR
         return leftResult || rightResult;
       }
     }
   }
   
+  // Example usage:
   
-  const ruleString = "((age > 30 AND department == 'Sales') OR (age < 25 AND department == 'Marketing')) AND (salary > 50000 OR experience > 5)";
+  // Define the rule string (with mixed case for demonstration)
+  const ruleString = "((age > 30 AND dePartment == 'Sales') OR (age < 25 AND department == 'Marketing')) AND (salary > 50000 OR exPerience > 5)";
   
+  // Tokenize and parse the rule string into an AST
   const tokens = tokenize(ruleString);
   const ast = parseExpression(tokens);
+  console.log(ast);
   
-  console.log(ast)
+  // Define sample user data (case-insensitive keys)
+  let userData = { aGe: 32, sAlary: 42000, depaRtment: 'Sales', Experience: 13 };
   
-  const userData = { age: 32, salary: 43000, department: 'Sales',experience :23 };
-  
-
+// Convert the keys of userData to lowercase for case-insensitive matching
+   userData = convertKeysToLowercase(userData);
+  // Evaluate the rule against the user's data
   const isEligible = evaluateAST(ast, userData);
   
-  console.log(isEligible);  
+  console.log(isEligible);  // Output: true, because the rule is satisfied
   
