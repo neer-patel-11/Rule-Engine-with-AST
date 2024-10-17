@@ -1,0 +1,13 @@
+{
+  "name": "rule-engine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index",
+    "start":"node index"
+
+  },
+  "author": "",
+  "license": "ISC"
+}
