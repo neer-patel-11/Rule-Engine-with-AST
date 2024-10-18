@@ -94,13 +94,11 @@ class Node {
   function ruleToNode(ruleString)
   {
     const tokens = tokenize(ruleString);
-    const ast = parseExpression(tokens);
-    // console.log(ast);
-    
+    const ast = parseExpression(tokens);    
     return ast
   }
 
-  // Function to convert keys in userData to lowercase for case-insensitive matching
+
 function convertKeysToLowercase(obj) {
     const newObj = {};
     for (const key of Object.keys(obj)) {
@@ -109,11 +107,10 @@ function convertKeysToLowercase(obj) {
     return newObj;
   }
   
-  // Function to combine multiple ASTs using a user-specified operator
 function combineASTs(asts, operator) {
-  let combinedNode = asts[0];  // Start with the first AST
+  let combinedNode = asts[0]; 
   for (let i = 1; i < asts.length; i++) {
-    combinedNode = new Node('operator', operator, combinedNode, asts[i]);  // Combine with subsequent ASTs
+    combinedNode = new Node('operator', operator, combinedNode, asts[i]);  
   }
   return combinedNode;
 }
@@ -125,10 +122,12 @@ function combine_rules(rules, operator) {
   // Combine all ASTs into one using the user-specified operator
   const combinedAST = combineASTs(asts, operator.toLowerCase());  // Ensure operator is lowercase for consistency
   
-  return combinedAST;  // Return the root node of the combined AST
+  return optimizeAST(combinedAST);  // Return the root node of the combined AST
 }
   // Function to evaluate the AST against user data
   function evaluateAST(node, data) {
+    data = convertKeysToLowercase(data);
+
     if (node.type === 'operand') {
       const [field, operator, ...valueParts] = node.value.split(' ');
       let value = valueParts.join(' ');  // Join in case the value is a string with spaces
@@ -167,7 +166,7 @@ function combine_rules(rules, operator) {
     }
   }
 
-  // Optimize the AST by simplifying constant expressions, removing redundant nodes, and short-circuiting.
+
 function optimizeAST(node) {
   if (!node || node.type === 'operand') return node;  // Base case for recursion: return operand nodes as-is
 
@@ -198,12 +197,11 @@ function optimizeAST(node) {
   return new Node(node.type, node.value, leftOptimized, rightOptimized);
 }
 
-// Helper function to check if a node is a constant True value
+
 function isConstantTrue(node) {
   return node.type === 'operand' && node.value === 'true';
 }
 
-// Helper function to check if a node is a constant False value
 function isConstantFalse(node) {
   return node.type === 'operand' && node.value === 'false';
 }
@@ -217,18 +215,15 @@ const rules = [
 ];
 
 // Combine the rules using 'OR' operator
-const combinedAST = combine_rules(rules, 'OR');
+const combinedAST = combine_rules(rules, 'Or');
 
-// Optimize the combined AST
-const optimizedAST = optimizeAST(combinedAST);
 
-console.log(optimizedAST)
-// Sample user data
-let userData = { aGe: 35, sAlary: 4000, depaRtment: 'Sals', Experience: 1 };
-userData = convertKeysToLowercase(userData);
+console.log(combinedAST)
+
+let userData = { aGe: 35, sAlary: 40000, depaRtment: 'Sales', Experience: 1 };
 
 
 // Evaluate the optimized AST
-const isEligible = evaluateAST(optimizedAST, userData);
+const isEligible = evaluateAST(combinedAST, userData);
 console.log(isEligible);  // Output will depend on userData and combined rules
   
