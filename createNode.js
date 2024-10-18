@@ -8,13 +8,13 @@ class Node {
     }
   }
   
-  // Tokenizer to handle multi-character comparison operators and parentheses
+
   function tokenize(ruleString) {
     const regex = /\s*(>=|<=|==|!=|[><]=?|[()&|]|[\w]+|\'[^\']*\'|\"[^\"]*\")\s*/g;
     return ruleString.match(regex).map(token => token.trim()).filter(token => token.length > 0);
   }
   
-  // Parse the tokens into an AST (Abstract Syntax Tree), handling parentheses and precedence
+  
   function parseExpression(tokens) {
     let index = 0;
   
@@ -43,16 +43,12 @@ class Node {
   
     // Parse an operand (e.g., 'age >= 10')
     function parseOperand() {
-      const left = nextToken();  // Field should be case-insensitive
-      const operator = nextToken();  // Operator should be case-insensitive
-      const right = nextToken();  // Keep the value case-sensitive (e.g., 'Sales')
+      const left = nextToken();  
+      const operator = nextToken();
+      const right = nextToken();  
+  
+      return new Node('operand', `${left} ${operator} ${right}`);
       
-      // Handle quoted strings properly for values
-      if ((right.startsWith("'") && right.endsWith("'")) || (right.startsWith('"') && right.endsWith('"'))) {
-        return new Node('operand', `${left} ${operator} ${right}`);  // Preserve quotes in the value
-      } else {
-        return new Node('operand', `${left} ${operator} ${right}`);
-      }
     }
   
     // Parse parentheses and sub-expressions
@@ -95,6 +91,15 @@ class Node {
     return parseLogicalExpression();
   }
 
+  function ruleToNode(ruleString)
+  {
+    const tokens = tokenize(ruleString);
+    const ast = parseExpression(tokens);
+    // console.log(ast);
+    
+    return ast
+  }
+
   // Function to convert keys in userData to lowercase for case-insensitive matching
 function convertKeysToLowercase(obj) {
     const newObj = {};
@@ -104,6 +109,24 @@ function convertKeysToLowercase(obj) {
     return newObj;
   }
   
+  // Function to combine multiple ASTs using a user-specified operator
+function combineASTs(asts, operator) {
+  let combinedNode = asts[0];  // Start with the first AST
+  for (let i = 1; i < asts.length; i++) {
+    combinedNode = new Node('operator', operator, combinedNode, asts[i]);  // Combine with subsequent ASTs
+  }
+  return combinedNode;
+}
+
+// Main function to combine multiple rule strings into one AST based on user-specified operator
+function combine_rules(rules, operator) {
+  const asts = rules.map(rule => ruleToNode(rule));  // Convert each rule to an AST
+
+  // Combine all ASTs into one using the user-specified operator
+  const combinedAST = combineASTs(asts, operator.toLowerCase());  // Ensure operator is lowercase for consistency
+  
+  return combinedAST;  // Return the root node of the combined AST
+}
   // Function to evaluate the AST against user data
   function evaluateAST(node, data) {
     if (node.type === 'operand') {
@@ -132,34 +155,80 @@ function convertKeysToLowercase(obj) {
         default: return false;
       }
     } else if (node.type === 'operator') {
-      const leftResult = evaluateAST(node.left, data);
-      const rightResult = evaluateAST(node.right, data);
-  
-      if (node.value === 'and') {  // Case-insensitive AND
-        return leftResult && rightResult;
-      } else if (node.value === 'or') {  // Case-insensitive OR
-        return leftResult || rightResult;
+
+      if (node.value === 'and') {  
+        
+        return evaluateAST(node.left, data) && evaluateAST(node.right, data);
+      } 
+      else if (node.value === 'or') {  // Case-insensitive OR
+        return evaluateAST(node.left, data) || evaluateAST(node.right, data);
       }
+  
     }
   }
-  
-  // Example usage:
-  
-  // Define the rule string (with mixed case for demonstration)
-  const ruleString = "((age > 30 AND dePartment == 'Sales') OR (age < 25 AND department == 'Marketing')) AND (salary > 50000 OR exPerience > 5)";
-  
-  // Tokenize and parse the rule string into an AST
-  const tokens = tokenize(ruleString);
-  const ast = parseExpression(tokens);
-  console.log(ast);
-  
-  // Define sample user data (case-insensitive keys)
-  let userData = { aGe: 32, sAlary: 42000, depaRtment: 'Sales', Experience: 13 };
-  
-// Convert the keys of userData to lowercase for case-insensitive matching
-   userData = convertKeysToLowercase(userData);
-  // Evaluate the rule against the user's data
-  const isEligible = evaluateAST(ast, userData);
-  
-  console.log(isEligible);  // Output: true, because the rule is satisfied
+
+  // Optimize the AST by simplifying constant expressions, removing redundant nodes, and short-circuiting.
+function optimizeAST(node) {
+  if (!node || node.type === 'operand') return node;  // Base case for recursion: return operand nodes as-is
+
+  // Recursively optimize the left and right children
+  const leftOptimized = optimizeAST(node.left);
+  const rightOptimized = optimizeAST(node.right);
+
+  // Short-circuiting logic for AND and OR nodes
+  if (node.type === 'operator') {
+    // For AND, if any child is False, the result is always False
+    if (node.value === 'and') {
+      if (isConstantFalse(leftOptimized)) return leftOptimized;
+      if (isConstantFalse(rightOptimized)) return rightOptimized;
+      if (isConstantTrue(leftOptimized)) return rightOptimized;  // True AND x => x
+      if (isConstantTrue(rightOptimized)) return leftOptimized;  // x AND True => x
+    }
+
+    // For OR, if any child is True, the result is always True
+    if (node.value === 'or') {
+      if (isConstantTrue(leftOptimized)) return leftOptimized;
+      if (isConstantTrue(rightOptimized)) return rightOptimized;
+      if (isConstantFalse(leftOptimized)) return rightOptimized;  // False OR x => x
+      if (isConstantFalse(rightOptimized)) return leftOptimized;  // x OR False => x
+    }
+  }
+
+  // Create a new optimized node if no short-circuiting occurred
+  return new Node(node.type, node.value, leftOptimized, rightOptimized);
+}
+
+// Helper function to check if a node is a constant True value
+function isConstantTrue(node) {
+  return node.type === 'operand' && node.value === 'true';
+}
+
+// Helper function to check if a node is a constant False value
+function isConstantFalse(node) {
+  return node.type === 'operand' && node.value === 'false';
+}
+
+
+
+const rules = [
+  "age > 30 AND department == 'Sales'",
+  "age < 25 AND department == 'Marketing'",
+  "salary > 50000 OR experience > 5"
+];
+
+// Combine the rules using 'OR' operator
+const combinedAST = combine_rules(rules, 'OR');
+
+// Optimize the combined AST
+const optimizedAST = optimizeAST(combinedAST);
+
+console.log(optimizedAST)
+// Sample user data
+let userData = { aGe: 35, sAlary: 4000, depaRtment: 'Sals', Experience: 1 };
+userData = convertKeysToLowercase(userData);
+
+
+// Evaluate the optimized AST
+const isEligible = evaluateAST(optimizedAST, userData);
+console.log(isEligible);  // Output will depend on userData and combined rules
   
