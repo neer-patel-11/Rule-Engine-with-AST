@@ -1,4 +1,5 @@
 // AST Logic
+const AstNode = require('./astSchema');  // Import the AST schema
 class Node {
   constructor(type, value = null, left = null, right = null) {
     this.type = type;  // 'operator' or 'operand'
@@ -99,9 +100,45 @@ function combine_rules(rules, operator) {
   return combineASTs(asts, operator.toLowerCase());
 }
 
+// Function to save AST recursively to the database
+async function saveAST(node) {
+  if (!node) return null;
+
+  // Save left and right child nodes recursively
+  const leftId = node.left ? await saveAST(node.left) : null;
+  const rightId = node.right ? await saveAST(node.right) : null;
+
+  // Create a new AST node document
+  const astNode = new AstNode({
+      type: node.type,
+      value: node.value,
+      left: leftId,
+      right: rightId
+  });
+
+  // Save and return the node ID
+  const savedNode = await astNode.save();
+  return savedNode._id;
+}
+
+// Function to retrieve an AST from the database by ID
+async function retrieveAST(nodeId) {
+  const node = await AstNode.findById(nodeId).populate('left right').exec();  // Populate left and right child nodes
+  if (!node) return null;
+
+  return {
+      type: node.type,
+      value: node.value,
+      left: node.left ? await retrieveAST(node.left._id) : null,
+      right: node.right ? await retrieveAST(node.right._id) : null
+  };
+}
+
 // Exports
 module.exports = {
   Node,
   ruleToNode,
   combine_rules,
+  saveAST,
+  retrieveAST
 };
