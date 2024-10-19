@@ -5,7 +5,7 @@ const { evaluateAST } = require('./ruleEvaluator');
 const { saveAST, retrieveAST } = require('./astLogic');  // Import AST logic
 
 // Route for combining rules into an AST
-router.get('/combine_rules', (req, res) => {
+router.post('/combine_rules', (req, res) => {
   const { rules, operator } = req.body;
 
   try {
@@ -17,7 +17,7 @@ router.get('/combine_rules', (req, res) => {
 });
 
 // Route for evaluating AST
-router.get('/evaluate', (req, res) => {
+router.post('/evaluate', (req, res) => {
   const { ast, data } = req.body;
 
   try {
@@ -29,7 +29,7 @@ router.get('/evaluate', (req, res) => {
 });
 
 // Route for converting rule to AST
-router.get('/rule_to_node', (req, res) => {
+router.post('/rule_to_node', (req, res) => {
   const { rule } = req.body;
 
   try {
