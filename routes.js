@@ -19,12 +19,12 @@ router.post('/combine_rules', (req, res) => {
 // Route for evaluating AST
 router.post('/evaluate', (req, res) => {
   const { ast, data } = req.body;
-
+  console.log(data)
   try {
     const result = evaluateAST(ast, data);
     res.json({ success: true, result });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 
@@ -45,7 +45,8 @@ router.post('/rule_to_node', (req, res) => {
 router.post('/save-ast', async (req, res) => {
     try {
         const { ast } = req.body;  // AST in request body
-        const nodeId = await saveAST(ast);  // Save the AST
+        const node = ruleToNode(ast);  
+        const nodeId = await saveAST(node);  // Save the AST
         res.status(200).json({ message: 'AST saved successfully', nodeId });
     } catch (error) {
         res.status(500).json({ error: 'Failed to save AST', details: error });
@@ -56,6 +57,7 @@ router.post('/save-ast', async (req, res) => {
 router.get('/retrieve-ast/:id', async (req, res) => {
     try {
         const ast = await retrieveAST(req.params.id);  // Retrieve AST by ID
+        // console.log(ast)
         res.status(200).json({ ast });
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve AST', details: error });

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluate AST</title>
+</head>
+<body>
+    <h1>Evaluate AST</h1>
+    <div class="container">
+        <div class="form-group">
+            <label for="astToEvaluate">AST to Evaluate (JSON format):</label>
+            <textarea id="astToEvaluate" rows="5" placeholder="Enter AST in JSON format"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="dataToEvaluate">Data to Evaluate (JSON format):</label>
+            <textarea id="dataToEvaluate" rows="3" placeholder="Enter data (e.g., { 'age': 35, 'salary': 60000 })"></textarea>
+        </div>
+        <button onclick="evaluateAST()">Evaluate AST</button>
+        <div class="result" id="resultContent"></div>
+    </div>
+
+    <script>
+        async function evaluateAST() {
+            const ast = document.getElementById('astToEvaluate').value;
+            const data = document.getElementById('dataToEvaluate').value;
+            console.log(ast)
+            console.log(data)
+            if (!ast || !data) {
+                document.getElementById('resultContent').innerHTML = 'Please enter both AST and data to evaluate!';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/evaluate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ast, data })
+                });
+                
+                const data = await response.json();
+                console.log(data)
+                if (data.error) {
+                    document.getElementById('resultContent').innerHTML = `Error: ${data.error}`;
+                } else {
+                    document.getElementById('resultContent').innerHTML = `Evaluation Result: ${data.result}`;
+                }
+            } catch (error) {
+                document.getElementById('resultContent').innerHTML = 'Error evaluating AST. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -10,158 +10,35 @@
             margin: 20px;
             background-color: #f4f4f4;
         }
-
         h1 {
             text-align: center;
         }
-
         .container {
             max-width: 800px;
             margin: 0 auto;
         }
-
-        .form-group {
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 20px;
         }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
+        a {
+            text-decoration: none;
+            color: #007bff;
             font-weight: bold;
-        }
-
-        input, textarea, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        button {
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .result {
-            margin-top: 20px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
     <h1>AST Rule Engine</h1>
     <div class="container">
-        <!-- Form to input a rule string and convert it to AST -->
-        <div class="form-group">
-            <label for="ruleInput">Rule String:</label>
-            <input type="text" id="ruleInput" placeholder="Enter rule (e.g., age > 30 AND salary > 50000)" />
-            <button onclick="convertRuleToNode()">Convert Rule to AST</button>
-        </div>
-
-        <!-- Form to combine multiple rules -->
-        <div class="form-group">
-            <label for="rulesToCombine">Rules to Combine (comma-separated):</label>
-            <textarea id="rulesToCombine" placeholder="Enter rules (e.g., age > 30, salary > 50000)" rows="3"></textarea>
-            <label for="combineOperator">Operator to Combine:</label>
-            <select id="combineOperator">
-                <option value="AND">AND</option>
-                <option value="OR">OR</option>
-            </select>
-            <button onclick="combineRules()">Combine Rules</button>
-        </div>
-
-        <!-- Form to save an AST -->
-        <div class="form-group">
-            <label for="astToSave">AST to Save (JSON format):</label>
-            <textarea id="astToSave" placeholder="Enter AST in JSON format" rows="5"></textarea>
-            <button onclick="saveAST()">Save AST</button>
-        </div>
-
-        <!-- Form to retrieve AST by ID -->
-        <div class="form-group">
-            <label for="astId">Retrieve AST by ID:</label>
-            <input type="text" id="astId" placeholder="Enter AST ID" />
-            <button onclick="retrieveAST()">Retrieve AST</button>
-        </div>
-
-        <!-- Form to evaluate AST -->
-        <div class="form-group">
-            <label for="astToEvaluate">AST to Evaluate (JSON format):</label>
-            <textarea id="astToEvaluate" placeholder="Enter AST in JSON format" rows="5"></textarea>
-            <label for="dataToEvaluate">Data to Evaluate (JSON format):</label>
-            <textarea id="dataToEvaluate" placeholder="Enter data (e.g., { 'age': 35, 'salary': 60000 })" rows="3"></textarea>
-            <button onclick="evaluateAST()">Evaluate AST</button>
-        </div>
-
-        <!-- Result display section -->
-        <div class="result" id="result">
-            <h3>Results</h3>
-            <div id="resultContent"></div>
+        <div class="nav-links">
+            <a href="convert_rule.html">Convert Rule to AST</a>
+            <a href="combine_rules.html">Combine Rules</a>
+            <a href="save_ast.html">Save AST</a>
+            <a href="retrieve_ast.html">Retrieve AST</a>
+            <a href="evaluate_ast.html">Evaluate AST</a>
         </div>
     </div>
-
-    <script>
-        // Example function to convert rule to AST
-        async function convertRuleToNode() {
-          const rule =await document.getElementById('ruleInput').value;
-      
-          try {
-            const response = await fetch('/api/rule_to_node', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ rule })  // Sending rule in the request body
-            });
-      
-            const data = await response.json();
-            if (data.success) {
-              console.log('AST:', data.ast);
-              // Do something with the AST data
-            } else {
-              console.error('Error:', data.message);
-            }
-          } catch (error) {
-            console.error('Error converting rule to AST:', error);
-          }
-        }
-      
-        // Similar changes for other API calls
-      
-        // Example for combining rules
-        async function combineRules() {
-          const rules = [document.getElementById('rule1').value, document.getElementById('rule2').value];
-          const operator = document.getElementById('operatorInput').value;
-      
-          try {
-            const response = await fetch('/api/combine_rules', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ rules, operator })
-            });
-      
-            const data = await response.json();
-            if (data.success) {
-              console.log('Combined AST:', data.combinedAST);
-              // Do something with the combined AST
-            } else {
-              console.error('Error:', data.message);
-            }
-          } catch (error) {
-            console.error('Error combining rules:', error);
-          }
-        }
-      </script>
 </body>
 </html>

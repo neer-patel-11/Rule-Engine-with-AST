@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert Rule to AST</title>
+</head>
+<body>
+    <h1>Convert Rule to AST</h1>
+    <div class="container">
+        <div class="form-group">
+            <label for="ruleInput">Rule String:</label>
+            <input type="text" id="ruleInput" placeholder="Enter rule (e.g., age > 30 AND salary > 50000)" />
+            <button onclick="convertRuleToNode()">Convert Rule to AST</button>
+        </div>
+        <div class="result" id="resultContent"></div>
+    </div>
+
+    <script>
+        async function convertRuleToNode() {
+            const rule = document.getElementById('ruleInput').value;
+
+            if (!rule) {
+                document.getElementById('resultContent').innerHTML = 'Please enter a rule!';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/rule_to_node', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rule })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('resultContent').innerHTML = `<pre>AST: ${JSON.stringify(data.ast, null, 2)}</pre>`;
+                } else {
+                    document.getElementById('resultContent').innerHTML = `Error: ${data.message}`;
+                }
+            } catch (error) {
+                document.getElementById('resultContent').innerHTML = 'Error converting rule to AST. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>

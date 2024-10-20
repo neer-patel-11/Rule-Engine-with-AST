@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retrieve AST</title>
+</head>
+<body>
+    <h1>Retrieve AST</h1>
+    <div class="container">
+        <div class="form-group">
+            <label for="astId">Retrieve AST by ID:</label>
+            <input type="text" id="astId" placeholder="Enter AST ID" />
+            <button onclick="retrieveAST()">Retrieve AST</button>
+        </div>
+        <div class="result" id="resultContent"></div>
+    </div>
+
+    <script>
+        async function retrieveAST() {
+            const astId = document.getElementById('astId').value;
+
+            if (!astId) {
+                document.getElementById('resultContent').innerHTML = 'Please enter an AST ID!';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/retrieve-ast/${astId}`, {
+                    method: 'GET'
+                });
+                
+                const data = await response.json();
+                console.log(data)
+                if (data.error) {
+                    document.getElementById('resultContent').innerHTML = `Error: ${data.error}`;
+                } else {
+                    document.getElementById('resultContent').innerHTML = `<pre>AST: ${JSON.stringify(data.ast, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                document.getElementById('resultContent').innerHTML = 'Error retrieving AST. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>

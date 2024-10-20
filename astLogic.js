@@ -103,10 +103,11 @@ function combine_rules(rules, operator) {
 // Function to save AST recursively to the database
 async function saveAST(node) {
   if (!node) return null;
+  // console.log(node)
 
   // Save left and right child nodes recursively
-  const leftId = node.left ? await saveAST(node.left) : null;
   const rightId = node.right ? await saveAST(node.right) : null;
+  const leftId = node.left ? await saveAST(node.left) : null;
 
   // Create a new AST node document
   const astNode = new AstNode({
@@ -118,6 +119,7 @@ async function saveAST(node) {
 
   // Save and return the node ID
   const savedNode = await astNode.save();
+  // console.log(savedNode)
   return savedNode._id;
 }
 

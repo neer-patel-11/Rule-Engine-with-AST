@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save AST</title>
+</head>
+<body>
+    <h1>Save AST</h1>
+    <div class="container">
+        <div class="form-group">
+            <label for="astToSave">AST to Save (JSON format):</label>
+            <textarea id="astToSave" rows="5" placeholder="Enter AST in JSON format"></textarea>
+            <button onclick="saveAST()">Save AST</button>
+        </div>
+        <div class="result" id="resultContent"></div>
+    </div>
+
+    <script>
+        async function saveAST() {
+            const ast = document.getElementById('astToSave').value;
+
+            if (!ast) {
+                document.getElementById('resultContent').innerHTML = 'Please enter an AST!';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/save-ast', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ast })
+                });
+                
+                const data = await response.json();
+                console.log(data)
+                if (data.error) {
+                    document.getElementById('resultContent').innerHTML = `Error: ${data.error}`;
+                } else {
+                    document.getElementById('resultContent').innerHTML = ` ${data.message} , Node Id : ${data.nodeId}`;
+                }
+            } catch (error) {
+                document.getElementById('resultContent').innerHTML = 'Error saving AST. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>

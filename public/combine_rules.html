@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combine Rules</title>
+</head>
+<body>
+    <h1>Combine Rules</h1>
+    <div class="container">
+        <div class="form-group">
+            <label for="rulesToCombine">Rules to Combine (comma-separated):</label>
+            <textarea id="rulesToCombine" rows="3" placeholder="Enter rules (e.g., age > 30, salary > 50000)"></textarea>
+            <label for="combineOperator">Operator to Combine:</label>
+            <select id="combineOperator">
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
+            </select>
+            <button onclick="combineRules()">Combine Rules</button>
+        </div>
+        <div class="result" id="resultContent"></div>
+    </div>
+
+    <script>
+        async function combineRules() {
+            const rules = document.getElementById('rulesToCombine').value.split(',');
+            const operator = document.getElementById('combineOperator').value;
+
+            if (rules.length < 2) {
+                document.getElementById('resultContent').innerHTML = 'Please enter at least two rules!';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/combine_rules', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rules, operator })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('resultContent').innerHTML = `<pre>Combined AST: ${JSON.stringify(data.combinedAST, null, 2)}</pre>`;
+                } else {
+                    document.getElementById('resultContent').innerHTML = `Error: ${data.message}`;
+                }
+            } catch (error) {
+                document.getElementById('resultContent').innerHTML = 'Error combining rules. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>
