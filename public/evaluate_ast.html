@@ -38,12 +38,12 @@
                     body: JSON.stringify({ ast, data })
                 });
                 
-                const data = await response.json();
-                console.log(data)
-                if (data.error) {
-                    document.getElementById('resultContent').innerHTML = `Error: ${data.error}`;
+                const res = await response.json();
+                console.log(res)
+                if (res.error) {
+                    document.getElementById('resultContent').innerHTML = `Error: ${res.error}`;
                 } else {
-                    document.getElementById('resultContent').innerHTML = `Evaluation Result: ${data.result}`;
+                    document.getElementById('resultContent').innerHTML = `Evaluation Result: ${res.result}`;
                 }
             } catch (error) {
                 document.getElementById('resultContent').innerHTML = 'Error evaluating AST. Please try again.';

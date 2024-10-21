@@ -9,6 +9,29 @@ class Node {
   }
 }
 
+// Function to convert JSON into Node structure
+function jsonToNode(json) {
+  if (!json || typeof json !== 'object') {
+    throw new Error('Invalid JSON input');
+  }
+
+  const { type, value, left, right } = json;
+
+  // Create the current node
+  const node = new Node(type, value);
+
+  // Recursively convert left and right if they exist
+  if (left) {
+    node.left = jsonToNode(left);  // Recursively convert left child
+  }
+
+  if (right) {
+    node.right = jsonToNode(right);  // Recursively convert right child
+  }
+
+  return node;
+}
+
 function tokenize(ruleString) {
   const regex = /\s*(>=|<=|==|!=|[><]=?|[()&|]|[\w]+|\'[^\']*\'|\"[^\"]*\")\s*/g;
   return ruleString.match(regex).map(token => token.trim()).filter(token => token.length > 0);
@@ -142,5 +165,6 @@ module.exports = {
   ruleToNode,
   combine_rules,
   saveAST,
-  retrieveAST
+  retrieveAST,
+  jsonToNode
 };

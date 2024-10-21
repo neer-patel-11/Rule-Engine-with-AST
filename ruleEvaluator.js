@@ -1,3 +1,5 @@
+const { jsonToNode } = require('./astLogic');  // Import AST logic
+
 function convertKeysToLowercase(obj) {
     const newObj = {};
     for (const key of Object.keys(obj)) {
@@ -7,13 +9,15 @@ function convertKeysToLowercase(obj) {
   }
   
   // Function to evaluate AST
-  function evaluateAST(node, data) {
+  async function evaluateAST(ast, data) {
     data = convertKeysToLowercase(data);
-  
-    if (node.type === 'operand') {
-      const [field, operator, ...valueParts] = node.value.split(' ');
+    // console.log(data)
+    ast = jsonToNode(ast)
+    if (ast.type === 'operand') {
+      const [field, operator, ...valueParts] = ast.value.split(' ');
+      // console.log(field )
       let value = valueParts.join(' ');
-  
+      // console.log(value)
       if (value.startsWith("'") && value.endsWith("'")) {
         value = value.slice(1, -1);  // Remove single quotes
       } else if (value.startsWith('"') && value.endsWith('"')) {
@@ -21,7 +25,7 @@ function convertKeysToLowercase(obj) {
       }
   
       const dataValue = data[field.toLowerCase()];
-  
+      // console.log(dataValue)
       switch (operator) {
         case '>': return dataValue > Number(value);
         case '<': return dataValue < Number(value);
@@ -31,11 +35,11 @@ function convertKeysToLowercase(obj) {
         case '!=': return dataValue != value;
         default: return false;
       }
-    } else if (node.type === 'operator') {
-      if (node.value === 'and') {
-        return evaluateAST(node.left, data) && evaluateAST(node.right, data);
-      } else if (node.value === 'or') {
-        return evaluateAST(node.left, data) || evaluateAST(node.right, data);
+    } else if (ast.type == 'operator') {
+      if (ast.value.toLowerCase() == 'and') {
+        return await evaluateAST(ast.left, data) && await evaluateAST(ast.right, data);
+      } else if (ast.value.toLowerCase() == 'or') {
+        return await evaluateAST(ast.left, data) || await evaluateAST(ast.right, data);
       }
     }
   }

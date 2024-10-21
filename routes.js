@@ -17,11 +17,13 @@ router.post('/combine_rules', (req, res) => {
 });
 
 // Route for evaluating AST
-router.post('/evaluate', (req, res) => {
-  const { ast, data } = req.body;
-  console.log(data)
+router.post('/evaluate',async (req, res) => {
+  let { ast, data } = req.body;
+  ast = JSON.parse(ast)
+  data = JSON.parse(data)
+
   try {
-    const result = evaluateAST(ast, data);
+    const result =await evaluateAST(ast, data);
     res.json({ success: true, result });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
