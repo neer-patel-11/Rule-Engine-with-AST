@@ -4,21 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retrieve AST</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
     <h1>Retrieve AST</h1>
     <div class="container">
         <div class="form-group">
-            <label for="astId">Retrieve AST by ID:</label>
-            <input type="text" id="astId" placeholder="Enter AST ID" />
-            <button onclick="retrieveAST()">Retrieve AST</button>
+            <label for="astIdInput">Enter AST ID:</label>
+            <input type="text" id="astIdInput" placeholder="Enter the AST ID to retrieve" />
         </div>
+        <button onclick="retrieveAST()">Retrieve AST</button>
         <div class="result" id="resultContent"></div>
     </div>
 
     <script>
         async function retrieveAST() {
-            const astId = document.getElementById('astId').value;
+            const astId = document.getElementById('astIdInput').value;
 
             if (!astId) {
                 document.getElementById('resultContent').innerHTML = 'Please enter an AST ID!';
@@ -26,16 +71,16 @@
             }
 
             try {
-                const response = await fetch(`/api/retrieve-ast/${astId}`, {
-                    method: 'GET'
+                const response = await fetch(`/api/retrieve_ast/${astId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
                 });
                 
-                const data = await response.json();
-                console.log(data)
-                if (data.error) {
-                    document.getElementById('resultContent').innerHTML = `Error: ${data.error}`;
+                const res = await response.json();
+                if (res.error) {
+                    document.getElementById('resultContent').innerHTML = `Error: ${res.error}`;
                 } else {
-                    document.getElementById('resultContent').innerHTML = `<pre>AST: ${JSON.stringify(data.ast, null, 2)}</pre>`;
+                    document.getElementById('resultContent').innerHTML = `<pre>Retrieved AST: ${JSON.stringify(res.ast, null, 2)}</pre>`;
                 }
             } catch (error) {
                 document.getElementById('resultContent').innerHTML = 'Error retrieving AST. Please try again.';

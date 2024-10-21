@@ -4,30 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Combine Rules</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #addRuleBtn {
+            background-color: #28a745;
+        }
+        pre {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
     <h1>Combine Rules</h1>
     <div class="container">
-        <div class="form-group">
-            <label for="rulesToCombine">Rules to Combine (comma-separated):</label>
-            <textarea id="rulesToCombine" rows="3" placeholder="Enter rules (e.g., age > 30, salary > 50000)"></textarea>
-            <label for="combineOperator">Operator to Combine:</label>
-            <select id="combineOperator">
-                <option value="AND">AND</option>
-                <option value="OR">OR</option>
-            </select>
-            <button onclick="combineRules()">Combine Rules</button>
+        <div id="ruleContainer">
+            <div class="form-group" id="rule-1">
+                <label for="rule1Input">Rule 1 (JSON format):</label>
+                <textarea id="rule1Input" rows="3" placeholder="Enter first rule (AST format)"></textarea>
+            </div>
+            <div class="form-group" id="rule-2">
+                <label for="rule2Input">Rule 2 (JSON format):</label>
+                <textarea id="rule2Input" rows="3" placeholder="Enter second rule (AST format)"></textarea>
+            </div>
         </div>
+        <button id="addRuleBtn" onclick="addRule()">Add More Rule</button>
+
+        <div class="form-group">
+            <label for="operatorInput">Combine Operator (AND/OR):</label>
+            <textarea id="operatorInput" rows="1" placeholder="Enter operator (e.g., AND or OR)"></textarea>
+        </div>
+
+        <button onclick="combineRules()">Combine Rules</button>
         <div class="result" id="resultContent"></div>
     </div>
 
     <script>
-        async function combineRules() {
-            const rules = document.getElementById('rulesToCombine').value.split(',');
-            const operator = document.getElementById('combineOperator').value;
+        let ruleCount = 2;
 
-            if (rules.length < 2) {
-                document.getElementById('resultContent').innerHTML = 'Please enter at least two rules!';
+        // Function to add more rule input fields dynamically
+        function addRule() {
+            ruleCount++;
+            const ruleContainer = document.getElementById('ruleContainer');
+            
+            const newRuleDiv = document.createElement('div');
+            newRuleDiv.classList.add('form-group');
+            newRuleDiv.id = `rule-${ruleCount}`;
+            newRuleDiv.innerHTML = `
+                <label for="rule${ruleCount}Input">Rule ${ruleCount} (JSON format):</label>
+                <textarea id="rule${ruleCount}Input" rows="3" placeholder="Enter rule ${ruleCount} (AST format)"></textarea>
+            `;
+            ruleContainer.appendChild(newRuleDiv);
+        }
+
+        // Function to combine rules and send to the backend
+        async function combineRules() {
+            const rules = [];
+            
+            // Collect values from all rule input fields
+            for (let i = 1; i <= ruleCount; i++) {
+                const ruleValue = document.getElementById(`rule${i}Input`).value;
+                if (!ruleValue) {
+                    document.getElementById('resultContent').innerHTML = `Please enter rule ${i}!`;
+                    return;
+                }
+                rules.push(ruleValue);
+            }
+
+            const operator = document.getElementById('operatorInput').value;
+            if (!operator) {
+                document.getElementById('resultContent').innerHTML = 'Please enter the combine operator!';
                 return;
             }
 
@@ -37,12 +122,13 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ rules, operator })
                 });
-                
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('resultContent').innerHTML = `<pre>Combined AST: ${JSON.stringify(data.combinedAST, null, 2)}</pre>`;
+
+                const res = await response.json();
+                console.log(res)
+                if (res.error) {
+                    document.getElementById('resultContent').innerHTML = `Error: ${res.error}`;
                 } else {
-                    document.getElementById('resultContent').innerHTML = `Error: ${data.message}`;
+                    document.getElementById('resultContent').innerHTML = `<pre>Combined AST: ${JSON.stringify(res.combinedAST)}</pre>`;
                 }
             } catch (error) {
                 document.getElementById('resultContent').innerHTML = 'Error combining rules. Please try again.';
