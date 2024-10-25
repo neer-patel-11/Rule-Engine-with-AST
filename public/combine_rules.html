@@ -71,7 +71,12 @@
 
         <div class="form-group">
             <label for="operatorInput">Combine Operator (AND/OR):</label>
-            <textarea id="operatorInput" rows="1" placeholder="Enter operator (e.g., AND or OR)"></textarea>
+            <!-- <textarea id="operatorInput" rows="1" placeholder="Enter operator (e.g., AND or OR)"></textarea> -->
+
+            <select name="operatorInput" id="operatorInput">
+            <option value="and">AND</option>
+            <option value="or">OR</option>
+            </select>
         </div>
 
         <button onclick="combineRules()">Combine Rules</button>
@@ -128,7 +133,7 @@
                 if (res.error) {
                     document.getElementById('resultContent').innerHTML = `Error: ${res.error}`;
                 } else {
-                    document.getElementById('resultContent').innerHTML = `<pre>Combined AST: ${JSON.stringify(res.combinedAST)}</pre>`;
+                    document.getElementById('resultContent').innerHTML = `<pre>Combined AST: ${JSON.stringify(res.combinedAST, null, 2)}</pre>`;
                 }
             } catch (error) {
                 document.getElementById('resultContent').innerHTML = 'Error combining rules. Please try again.';

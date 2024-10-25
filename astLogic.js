@@ -33,9 +33,11 @@ function jsonToNode(json) {
 }
 
 function tokenize(ruleString) {
-  const regex = /\s*(>=|<=|==|!=|[><]=?|[()&|]|[\w]+|\'[^\']*\'|\"[^\"]*\")\s*/g;
-  return ruleString.match(regex).map(token => token.trim()).filter(token => token.length > 0);
+  const regex = /\s*(>=|<=|==|!=|=|[><]=?|[()&|]|[\w]+|\'[^\']*\'|\"[^\"]*\")\s*/g;  
+  const tokens = ruleString.match(regex).map(token => token.trim()).filter(token => token.length > 0);  
+  return tokens.map(token => token === '=' ? '==' : token);
 }
+
 
 function parseExpression(tokens) {
   let index = 0;
