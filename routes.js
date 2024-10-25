@@ -47,8 +47,8 @@ router.post('/rule_to_node', (req, res) => {
 // Route to save AST
 router.post('/save_ast', async (req, res) => {
     try {
-        const { ast } = req.body;  // AST in request body
-        const node = ruleToNode(ast);  
+        const { rule } = req.body;  // AST in request body
+        const node = ruleToNode(rule);  
         const nodeId = await saveAST(node);  // Save the AST
         // console.log(nodeId)
         res.status(200).json({ message: 'AST saved successfully', nodeId });

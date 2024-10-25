@@ -8,7 +8,7 @@ mongoose.connect('mongodb://localhost:27017/astDB', { useNewUrlParser: true, use
     .catch(err => console.log(err));
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.use(express.json());
 // Serve static files from the 'public' directory

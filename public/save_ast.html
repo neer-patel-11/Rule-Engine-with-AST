@@ -64,9 +64,9 @@
 
     <script>
         async function saveAST() {
-            const ast = document.getElementById('astToSave').value;
+            const rule= document.getElementById('astToSave').value;
 
-            if (!ast) {
+            if (!rule) {
                 document.getElementById('resultContent').innerHTML = 'Please enter an AST to save!';
                 return;
             }
@@ -75,7 +75,7 @@
                 const response = await fetch('/api/save_ast', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ast })
+                    body: JSON.stringify({ rule })
                 });
                 
                 const res = await response.json();
