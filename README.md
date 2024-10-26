@@ -34,9 +34,10 @@ MongoDB was chosen due to its flexibility with dynamic structures. The database 
 - **AST Construction**: `ruleToNode` function generates AST nodes from parsed tokens.
 - **Evaluation**: `evaluateAST` evaluates the AST nodes against provided user attributes.
 
+
 ## Prerequisites
-- **Node.js** (v12+)
-- **MongoDB** (v4.4+) – can be run locally or in a 
+- **Node.js** 
+- **MongoDB**  – can be run locally or in a 
 
 ## Dependencies
 Install these dependencies before running the application:
