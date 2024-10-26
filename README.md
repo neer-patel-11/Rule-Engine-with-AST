@@ -37,7 +37,7 @@ MongoDB was chosen due to its flexibility with dynamic structures. The database 
 
 ## Prerequisites
 - **Node.js** 
-- **MongoDB**  – can be run locally or in a 
+- **MongoDB**  – can be run locally 
 
 ## Dependencies
 Install these dependencies before running the application:
@@ -106,3 +106,14 @@ The application will start on http://localhost:3000.
 <li><strong>Input</strong>: AST-ID generated at the time of saving </li>
 <li><strong>Output</strong>: AST representation in JSON format.</li>
 </ul>
+
+
+## Screenshots
+
+![home](https://raw.githubusercontent.com/neer-patel-11/Rule-Engine-with-AST/refs/heads/main/screenshots/home.png)
+![ruleToAst](https://raw.githubusercontent.com/neer-patel-11/Rule-Engine-with-AST/refs/heads/main/screenshots/rule_to_ast.png)
+![combineRule](https://raw.githubusercontent.com/neer-patel-11/Rule-Engine-with-AST/refs/heads/main/screenshots/combine_rule.png)
+![evaluate](https://raw.githubusercontent.com/neer-patel-11/Rule-Engine-with-AST/refs/heads/main/screenshots/evaluate_ast.png)
+![saveAST](https://raw.githubusercontent.com/neer-patel-11/Rule-Engine-with-AST/refs/heads/main/screenshots/save_AST.png)
+![retrieveAST](https://raw.githubusercontent.com/neer-patel-11/Rule-Engine-with-AST/refs/heads/main/screenshots/retrieve_ast.png)
+![mongoDB](https://raw.githubusercontent.com/neer-patel-11/Rule-Engine-with-AST/refs/heads/main/screenshots/mongo.png)
