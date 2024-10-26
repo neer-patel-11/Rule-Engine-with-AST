@@ -14,7 +14,7 @@ The application includes:
 - **Eligibility Evaluation**: Evaluate eligibility based on rules defined in AST format.
 
 ## Architecture
-The application follows a 3-tier structure:
+The application follows :
 1. **Frontend**: Basic UI for rule and data input.
 2. **Backend (Node.js/Express)**: Manages the rule creation, combination, and evaluation logic.
 3. **Database (MongoDB)**: Stores the AST structures and metadata.
